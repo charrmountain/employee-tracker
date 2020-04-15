@@ -25,6 +25,11 @@
     - ### **JavaScript pages:**
          1. [app.js](app.js) main JavaScript file to complete command line based activity
 
+  - ### **MySQL pages:**
+         1. [schema.sql](schema.sql) main DB schema for MySQL
+         2. [seeds.sql](seeds.sql) main DB seeds for MySQL
+
+
 ## **Visuals**
 
  - Example of the command line questions

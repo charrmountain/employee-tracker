@@ -43,6 +43,10 @@ function start() {
           "Add a Position",
           "Add a Department",
           "Update Employee Position",
+          "Update Manager",
+          "Delete Employee",
+          "Delete Department",
+          "Delete Role",
           "Exit",
         ],
       },
@@ -72,6 +76,18 @@ function start() {
       }
       if (answers.options === "Update Employee Position") {
         update_employee_role();
+      }
+      if (answers.options === "Update Manager") {
+        update_manager();
+      }
+      if (answers.options === "Delete Employee") {
+        delete_employee();
+      }
+      if (answers.options === "Delete Role") {
+        delete_role();
+      }
+      if (answers.options === "Delete Department") {
+        delete_department();
       }
       if (answers.options === "Exit") {
         connection.end();
@@ -604,6 +620,198 @@ function view_by_manager() {
               console.table(res)
             }
           );
+          start();
+        });
+  });
+}
+
+// ----------------------------------------------------------------------------
+// ------------------------------UPDATE BY MANAGER-------------------------------
+// ----------------------------------------------------------------------------
+function update_manager() {
+  const query_employees = `SELECT id, first_name, last_name FROM employee`;
+  const join_query = `UPDATE employee SET manager_id = ? WHERE id = ?`;
+
+  const manager_view = [];
+
+    connection.query(query_employees, (err, res) => {
+      if (err) {
+        throw err;
+      }
+      const employee_array = res.map(
+        (row) => `${row.id} ${row.first_name} ${row.last_name}`
+      );
+
+      employee_array.push("null");
+      return inquirer
+        .prompt([
+          {
+            name: "employee",
+            type: "rawlist",
+            choices: employee_array,
+            message: "Which Employee's manager would you like to update?",
+          },
+          {
+            name: "new_manager",
+            type: "rawlist",
+            choices: employee_array,
+            message: "Who would you like to assign?",
+          },
+        ])
+        .then((answer) => {
+          const employee_choice_ID = answer.employee.split(" ");
+          const new_manager_ID = answer.new_manager.split(" ");
+
+          manager_view.push(employee_choice_ID[0], new_manager_ID[0]);
+
+          connection.query(
+            join_query,
+            [manager_view[1],manager_view[0]],
+            (err, res) => {
+              if (err) {
+                throw err;
+              }
+            }
+            );
+            console.log("Updated Manager!")
+          start();
+        });
+  });
+}
+
+// ----------------------------------------------------------------------------
+// ---------------------------------DELETE EMPLOYEE----------------------------
+// ----------------------------------------------------------------------------
+function delete_employee() {
+  const query_employees = `SELECT id, first_name, last_name FROM employee`;
+  const delete_query = `DELETE FROM employee WHERE id =?`;
+
+  const delete_employee= [];
+
+    connection.query(query_employees, (err, res) => {
+      if (err) {
+        throw err;
+      }
+      const employee_array = res.map(
+        (row) => `${row.id} ${row.first_name} ${row.last_name}`
+      );
+
+      employee_array.push("null");
+      return inquirer
+        .prompt([
+          {
+            name: "employee",
+            type: "rawlist",
+            choices: employee_array,
+            message: "Which Employee do you want to delete?",
+          },
+        ])
+        .then((answer) => {
+          const employee_ID = answer.employee.split(" ");
+          delete_employee.push(employee_ID[0]);
+
+          connection.query(
+            delete_query,
+            [delete_employee[0]],
+            (err, res) => {
+              if (err) {
+                throw err;
+              }
+            }
+          );
+          console.log("Employee deleted");
+          start();
+        });
+  });
+}
+
+// ----------------------------------------------------------------------------
+// ---------------------------------DELETE ROLE----------------------------
+// ----------------------------------------------------------------------------
+function delete_role() {
+  const query_roles = `SELECT id, title FROM role`;
+  const delete_query = `DELETE FROM role WHERE id = ?`;
+
+  const delete_role = [];
+
+    connection.query(query_roles, (err, res) => {
+      if (err) {
+        throw err;
+      }
+      const role_array = res.map(
+        (row) => `${row.id} ${row.title}`
+      );
+
+      role_array.push("null");
+      return inquirer
+        .prompt([
+          {
+            name: "role",
+            type: "rawlist",
+            choices: role_array,
+            message: "Which role do you want to delete?",
+          },
+        ])
+        .then((answer) => {
+          const role_ID = answer.role.split(" ");
+          delete_role.push(role_ID[0]);
+
+          connection.query(
+            delete_query,
+            [delete_role[0]],
+            (err, res) => {
+              if (err) {
+                throw err;
+              }
+            }
+          );
+          console.log("Role deleted");
+          start();
+        });
+  });
+}
+
+// ----------------------------------------------------------------------------
+// ---------------------------------DELETE DEPT----------------------------
+// ----------------------------------------------------------------------------
+function delete_department() {
+  const query_roles = `SELECT id, name FROM department`;
+  const delete_query = `DELETE FROM department WHERE id = ?`;
+
+  const delete_department = [];
+
+    connection.query(query_roles, (err, res) => {
+      if (err) {
+        throw err;
+      }
+      const department_array = res.map(
+        (row) => `${row.id} ${row.name}`
+      );
+
+      department_array.push("null");
+      return inquirer
+        .prompt([
+          {
+            name: "department",
+            type: "rawlist",
+            choices: department_array,
+            message: "Which department do you want to delete?",
+          },
+        ])
+        .then((answer) => {
+          const department_ID = answer.department.split(" ");
+          delete_department.push(department_ID[0]);
+
+          connection.query(
+            delete_query,
+            [delete_department[0]],
+            (err, res) => {
+              if (err) {
+                throw err;
+              }
+            }
+          );
+          console.log("Department deleted");
           start();
         });
   });
