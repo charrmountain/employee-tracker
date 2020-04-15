@@ -1,63 +1,46 @@
-function add_employee() {
-  const query_employees = `SELECT id, first_name, last_name FROM employee`;
-  const insert_query = `INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
-  const query_role = `SELECT id, title FROM role`;
-  const values = [];
-  connection.query(query_role, (err, res) => {
+function add_role() {
+  const insert_query_role = `INSERT INTO role(title, salary, departmentID) VALUES (?, ?, ?)`;
+  const query_department = `SELECT id, name FROM department`;
+  const role_values = [];
+  connection.query(query_department, (err, res) => {
     if (err) {
       throw err;
     }
-    const role_array = res.map((row) => `${row.id} ${row.title}`);
-    connection.query(query_employees, (err, res) => {
-      if (err) {
-        throw err;
-      }
-      const emp_array = res.map(
-        (row) => `${row.id} ${row.first_name} ${row.last_name}`
-      );
-      empArr.push("null");
+    const department_array = res.map((row) => `${row.id} ${row.name}`);
       return inquirer
         .prompt([
           {
-            name: "first",
+            name: "position",
             type: "input",
-            message: "What is the employee's first name?",
+            message: "What is the position?",
           },
           {
-            name: "last",
+            name: "salary",
             type: "input",
-            message: "What is the employee's last name?",
+            message: "What is the salary?",
           },
           {
-            name: "role",
+            name: "department",
             type: "rawlist",
-            choices: role_array,
-            message: "Choose a role for the employee",
-          },
-          {
-            name: "manager",
-            type: "rawlist",
-            choices: emp_array,
-            message: "Choose a manager for the employee",
+            choices: department_array,
+            message: "Choose a department for the position",
           },
         ])
         .then((answer) => {
-          const roleID = answer.role.split(" ");
-          const managerID = answer.manager.split(" ");
-          values.push(answer.first, answer.last, roleID[0], managerID[0]);
-          console.log(values);
+          const department_ID = answer.department.split(" ");
+          role_values.push(answer.position, answer.salary, department_ID[0]);
+          console.log(role_values);
           connection.query(
-            insert_query,
-            [values[0], values[1], values[2], values[3]],
+            insert_query_role,
+            [role_values[0], role_values[1], role_values[2]],
             (err, res) => {
               if (err) {
                 throw err;
               }
             }
           );
-          console.log("Employee added");
+          console.log("Department added");
           start();
         });
-    });
   });
 }
