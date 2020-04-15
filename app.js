@@ -78,8 +78,9 @@ function start() {
       process.exit(1);
     });
 }
-// -----------------------------VIEWS-----------------------------
-// -----------------------------VIEW ALL-----------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------VIEW ALL----------------------------------
+// ----------------------------------------------------------------------------
 //view ALL employees
 function view_employees() {
   // the callback will receive an error object or response object from connection.query
@@ -95,7 +96,9 @@ function view_employees() {
   return connection.query(sqlString, callback);
 }
 
-// -----------------------------VIEW BY ROLES-----------------------------
+// ----------------------------------------------------------------------------
+// --------------------------------VIEW BY ROLES-------------------------------
+// ----------------------------------------------------------------------------
 //view ALL roles
 function view_by_roles() {
   inquirer
@@ -187,7 +190,9 @@ function view_secretary() {
   return connection.query(sqlString + Secretary, callback);
 }
 
+// ----------------------------------------------------------------------------
 // -----------------------------VIEW BY DEPARTMENT-----------------------------
+// ----------------------------------------------------------------------------
 //view ALL department
 function view_by_department() {
   inquirer
@@ -261,7 +266,9 @@ function view_communications() {
   return connection.query(sqlString + communications, callback);
 }
 
-// -----------------------------ADD-----------------------------
+// ----------------------------------------------------------------------------
+// ------------------------------ VIEW BY ROLE---------------------------------
+// ----------------------------------------------------------------------------
 function view_by_roles() {
   inquirer
     .prompt([
@@ -307,8 +314,9 @@ function view_CEO() {
   return connection.query(sqlString + CEO, callback);
 }
 
-//   --------------------------ADD-----------------------------------
-
+// ----------------------------------------------------------------------------
+// ------------------------------ADD EMPLOYEE----------------------------------
+// ----------------------------------------------------------------------------
 function add_employee() {
   const query_role = `SELECT id, title FROM role`;
   const query_employees = `SELECT id, first_name, last_name FROM employee`;
@@ -390,6 +398,10 @@ function add_employee() {
 }
 
 
+
+// ----------------------------------------------------------------------------
+// ---------------------------------ADD ROLE----------------------------------
+// ----------------------------------------------------------------------------
 function add_role() {
     const insert_query_role = `INSERT INTO role(title, salary, department_id) VALUES (?, ?, ?)`;
     const query_department = `SELECT id, name FROM department`;
@@ -439,6 +451,10 @@ function add_role() {
     });
   }
 
+  // ----------------------------------------------------------------------------
+// ------------------------------ADD DEPARTMENT---------------------------------
+// ----------------------------------------------------------------------------
+
   function add_department() {
     const insert_query_department = `INSERT INTO department(name) VALUES (?)`;
   
@@ -468,8 +484,9 @@ function add_role() {
   }
   
 
-  //   --------------------------UPDATE-----------------------------------
-
+ // ----------------------------------------------------------------------------
+// ------------------------------UPDATE EMPLOYEE----------------------------------
+// ----------------------------------------------------------------------------
   function update_employee_role() {
     const query_role_update = `SELECT id, title FROM role`;
     const query_employees_update = `SELECT id, first_name, last_name FROM employee`;
