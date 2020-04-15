@@ -22,26 +22,18 @@
 
 -  A command-line application that at a minimum allows the user to add/view/update employees, departments, and roles.
 
-    - ### **HTML pages:**
-         1. 
-        
-
     - ### **JavaScript pages:**
-         1. 
-
-    - ### **Style Sheets** (used on all HTML pages)**:**
-         3. [style.css](style.css) (created by Coding-Bootcamp)
+         1. [app.js](app.js) main JavaScript file to complete command line based activity
 
 ## **Visuals**
 
- 
  - Example of the command line questions
  
 ## **Usage**
 
 - Please run the following tests before beginning:
 ```
-npm i
+npm i --save mysql inquirer
 ```
 
 ## **Support**
