@@ -38,6 +38,7 @@ function start() {
           "View all Employees",
           "View Employees by Roles",
           "View Employees by Department",
+          "View Employees by Manager",
           "Add an Employee",
           "Add a Position",
           "Add a Department",
@@ -56,6 +57,9 @@ function start() {
       }
       if (answers.options === "View Employees by Department") {
         view_by_department();
+      }
+      if (answers.options === "View Employees by Manager") {
+        view_by_manager();
       }
       if (answers.options === "Add an Employee") {
         add_employee();
@@ -549,3 +553,58 @@ function add_role() {
       });
     });
   }
+
+// ----------------------------------------------------------------------------
+// ------------------------------VIEW BY MANAGER-------------------------------
+// ----------------------------------------------------------------------------
+function view_by_manager() {
+  const query_manager_view = `SELECT id, first_name, last_name FROM employee`;
+  const join_query = ` SELECT 
+  CONCAT(manager.first_name," ",manager.last_name) AS manager,
+  employee.id, 
+  employee.first_name, 
+  employee.last_name
+  FROM employee
+  LEFT JOIN employee AS manager 
+    ON employee.manager_id = manager.id
+  WHERE manager.id = ?;`;
+
+  const  manager_view = [];
+
+    connection.query(query_manager_view, (err, res) => {
+      if (err) {
+        throw err;
+      }
+      const manager_array = res.map(
+        (row) => `${row.id} ${row.first_name} ${row.last_name}`
+      );
+
+      manager_array.push("null");
+      return inquirer
+        .prompt([
+          {
+            name: "manager_view",
+            type: "rawlist",
+            choices: manager_array,
+            message: "Which manager would you like to view?",
+          },
+        ])
+        .then((answer) => {
+          const manager_choice_ID = answer.manager_view.split(" ");
+
+          manager_view.push(manager_choice_ID[0]);
+
+          connection.query(
+            join_query,
+            [manager_view],
+            (err, res) => {
+              if (err) {
+                throw err;
+              }
+              console.table(res)
+            }
+          );
+          start();
+        });
+  });
+}
