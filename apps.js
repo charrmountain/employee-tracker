@@ -1,46 +1,27 @@
-function add_role() {
-  const insert_query_role = `INSERT INTO role(title, salary, departmentID) VALUES (?, ?, ?)`;
-  const query_department = `SELECT id, name FROM department`;
-  const role_values = [];
-  connection.query(query_department, (err, res) => {
-    if (err) {
-      throw err;
-    }
-    const department_array = res.map((row) => `${row.id} ${row.name}`);
-      return inquirer
-        .prompt([
-          {
-            name: "position",
-            type: "input",
-            message: "What is the position?",
-          },
-          {
-            name: "salary",
-            type: "input",
-            message: "What is the salary?",
-          },
-          {
-            name: "department",
-            type: "rawlist",
-            choices: department_array,
-            message: "Choose a department for the position",
-          },
-        ])
-        .then((answer) => {
-          const department_ID = answer.department.split(" ");
-          role_values.push(answer.position, answer.salary, department_ID[0]);
-          console.log(role_values);
-          connection.query(
-            insert_query_role,
-            [role_values[0], role_values[1], role_values[2]],
-            (err, res) => {
-              if (err) {
-                throw err;
-              }
-            }
-          );
-          console.log("Department added");
-          start();
-        });
-  });
+function add_department() {
+  const insert_query_department = `INSERT INTO department(name) VALUES (?)`;
+
+  const department_values = [];
+  return inquirer
+    .prompt([
+      {
+        name: "department",
+        type: "input",
+        message: "What is the department?",
+      },
+    ])
+    .then((answer) => {
+      department_values.push(answer.department);
+      connection.query(
+        insert_query_department,
+        [department_values[0], department_values[1], department_values[2]],
+        (err, res) => {
+          if (err) {
+            throw err;
+          }
+        }
+      );
+      console.log("Department added");
+      start();
+    });
 }

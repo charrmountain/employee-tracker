@@ -40,6 +40,7 @@ function start() {
           "View Employees by Department",
           "Add an Employee",
           "Add a Position",
+          "Add a Department",
           "Exit",
         ],
       },
@@ -60,6 +61,9 @@ function start() {
       }
       if (answers.options === "Add a Position") {
         add_role();
+      }
+      if (answers.options === "Add a Department") {
+        add_department();
       }
       if (answers.options === "Exit") {
         connection.end();
@@ -425,8 +429,37 @@ function add_role() {
                 }
               }
             );
-            console.log("Department added");
+            console.log("Position added");
             start();
           });
     });
   }
+
+  function add_department() {
+    const insert_query_department = `INSERT INTO department(name) VALUES (?)`;
+  
+    const department_values = [];
+    return inquirer
+      .prompt([
+        {
+          name: "department",
+          type: "input",
+          message: "What is the department?",
+        },
+      ])
+      .then((answer) => {
+        department_values.push(answer.department);
+        connection.query(
+          insert_query_department,
+          [department_values[0], department_values[1], department_values[2]],
+          (err, res) => {
+            if (err) {
+              throw err;
+            }
+          }
+        );
+        console.log("Department added");
+        start();
+      });
+  }
+  
