@@ -29,6 +29,7 @@ function employee_tracker() {
 
   figlet("Employee Tracker", function (err, data) {
     console.log(data);
+
     start();
   });
 }
