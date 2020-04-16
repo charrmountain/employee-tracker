@@ -22,7 +22,7 @@
 
 -  A command-line application that at a minimum allows the user to add/view/update employees, departments, and roles.
 
-    - ### **JavaScript pages:**
+  - ### **JavaScript pages:**
        1. [app.js](app.js) main JavaScript file to complete command line based activity
 
   - ### **MySQL pages:**
