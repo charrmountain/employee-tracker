@@ -763,7 +763,6 @@ function delete_role() {
           }
         });
         console.log("Role deleted");
-        view_employees();
         start();
       });
   });
@@ -804,7 +803,6 @@ function delete_department() {
           }
         });
         console.log("Department deleted");
-        view_employees();
         start();
       });
   });
