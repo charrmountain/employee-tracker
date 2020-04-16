@@ -23,11 +23,11 @@
 -  A command-line application that at a minimum allows the user to add/view/update employees, departments, and roles.
 
     - ### **JavaScript pages:**
-         1. [app.js](app.js) main JavaScript file to complete command line based activity
+       1. [app.js](app.js) main JavaScript file to complete command line based activity
 
   - ### **MySQL pages:**
-         1. [schema.sql](schema.sql) main DB schema for MySQL
-         2. [seeds.sql](seeds.sql) main DB seeds for MySQL
+       1. [schema.sql](schema.sql) main DB schema for MySQL
+       2. [seeds.sql](seeds.sql) main DB seeds for MySQL
 
 
 ## **Visuals**
