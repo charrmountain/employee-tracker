@@ -21,8 +21,17 @@ connection.connect((err) => {
     throw err;
   }
   console.log("connected as id " + connection.threadId);
-  start();
+  employee_tracker();
 });
+
+function employee_tracker() {
+  var figlet = require("figlet");
+
+  figlet("Employee Tracker", function (err, data) {
+    console.log(data);
+    start();
+  });
+}
 
 const sqlString =
   "SELECT employee.id, employee.first_name, employee.last_name, role.title AS position, role.salary AS salary, department.name AS department, CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employee LEFT JOIN employee AS manager ON employee.manager_id = manager.id LEFT JOIN role ON role.id = employee.role_id LEFT JOIN department ON department.id = role.department_id";
@@ -411,164 +420,163 @@ function add_employee() {
           );
 
           console.log("Employee added");
+          view_employees();
           start();
         });
     });
   });
 }
 
-
-
 // ----------------------------------------------------------------------------
 // ---------------------------------ADD ROLE----------------------------------
 // ----------------------------------------------------------------------------
 function add_role() {
-    const insert_query_role = `INSERT INTO role(title, salary, department_id) VALUES (?, ?, ?)`;
-    const query_department = `SELECT id, name FROM department`;
-    
-    const role_values = [];
-    
-    connection.query(query_department, (err, res) => {
-      if (err) {
-        throw err;
-      }
-      const department_array = res.map((row) => `${row.id} ${row.name}`);
-        return inquirer
-          .prompt([
-            {
-              name: "position",
-              type: "input",
-              message: "What is the position?",
-            },
-            {
-              name: "salary",
-              type: "input",
-              message: "What is the salary?",
-            },
-            {
-              name: "department",
-              type: "rawlist",
-              choices: department_array,
-              message: "Choose a department for the position",
-            },
-          ])
-          .then((answer) => {
-            const department_ID = answer.department.split(" ");
-            role_values.push(answer.position, answer.salary, department_ID[0]);
-            console.log(role_values);
-            connection.query(
-              insert_query_role,
-              [role_values[0], role_values[1], role_values[2]],
-              (err, res) => {
-                if (err) {
-                  throw err;
-                }
-              }
-            );
-            console.log("Position added");
-            start();
-          });
-    });
-  }
+  const insert_query_role = `INSERT INTO role(title, salary, department_id) VALUES (?, ?, ?)`;
+  const query_department = `SELECT id, name FROM department`;
 
-  // ----------------------------------------------------------------------------
-// ------------------------------ADD DEPARTMENT---------------------------------
-// ----------------------------------------------------------------------------
+  const role_values = [];
 
-  function add_department() {
-    const insert_query_department = `INSERT INTO department(name) VALUES (?)`;
-  
-    const department_values = [];
+  connection.query(query_department, (err, res) => {
+    if (err) {
+      throw err;
+    }
+    const department_array = res.map((row) => `${row.id} ${row.name}`);
     return inquirer
       .prompt([
         {
-          name: "department",
+          name: "position",
           type: "input",
-          message: "What is the department?",
+          message: "What is the position?",
+        },
+        {
+          name: "salary",
+          type: "input",
+          message: "What is the salary?",
+        },
+        {
+          name: "department",
+          type: "rawlist",
+          choices: department_array,
+          message: "Choose a department for the position",
         },
       ])
       .then((answer) => {
-        department_values.push(answer.department);
+        const department_ID = answer.department.split(" ");
+        role_values.push(answer.position, answer.salary, department_ID[0]);
+        console.log(role_values);
         connection.query(
-          insert_query_department,
-          [department_values[0], department_values[1], department_values[2]],
+          insert_query_role,
+          [role_values[0], role_values[1], role_values[2]],
           (err, res) => {
             if (err) {
               throw err;
             }
           }
         );
-        console.log("Department added");
+        console.log("Position added");
         start();
       });
-  }
-  
+  });
+}
 
- // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ------------------------------ADD DEPARTMENT---------------------------------
+// ----------------------------------------------------------------------------
+
+function add_department() {
+  const insert_query_department = `INSERT INTO department(name) VALUES (?)`;
+
+  const department_values = [];
+  return inquirer
+    .prompt([
+      {
+        name: "department",
+        type: "input",
+        message: "What is the department?",
+      },
+    ])
+    .then((answer) => {
+      department_values.push(answer.department);
+      connection.query(
+        insert_query_department,
+        [department_values[0], department_values[1], department_values[2]],
+        (err, res) => {
+          if (err) {
+            throw err;
+          }
+        }
+      );
+      console.log("Department added");
+      start();
+    });
+}
+
+// ----------------------------------------------------------------------------
 // ------------------------------UPDATE EMPLOYEE----------------------------------
 // ----------------------------------------------------------------------------
-  function update_employee_role() {
-    const query_role_update = `SELECT id, title FROM role`;
-    const query_employees_update = `SELECT id, first_name, last_name FROM employee`;
-    const insert_query_employee = `UPDATE employee SET role_id = (?) WHERE id = (?) `;
-  
-    const employee__values_update = [];
-  
-    connection.query(query_role_update, (err, res) => {
+function update_employee_role() {
+  const query_role_update = `SELECT id, title FROM role`;
+  const query_employees_update = `SELECT id, first_name, last_name FROM employee`;
+  const insert_query_employee = `UPDATE employee SET role_id = (?) WHERE id = (?) `;
+
+  const employee__values_update = [];
+
+  connection.query(query_role_update, (err, res) => {
+    if (err) {
+      throw err;
+    }
+    const role_array_update = res.map((row) => `${row.id} ${row.title}`);
+
+    connection.query(query_employees_update, (err, res) => {
       if (err) {
         throw err;
       }
-      const role_array_update = res.map((row) => `${row.id} ${row.title}`);
-  
-      connection.query(query_employees_update, (err, res) => {
-        if (err) {
-          throw err;
-        }
-        const employee_array = res.map(
-          (row) => `${row.id} ${row.first_name} ${row.last_name}`
-        );
-  
-        employee_array.push("null");
-        return inquirer
-          .prompt([
-            {
-              name: "employee",
-              type: "rawlist",
-              choices: employee_array,
-              message: "Which Employee would you like to update?",
-            },
-            {
-              name: "role",
-              type: "rawlist",
-              choices: role_array_update,
-              message: "Choose a role for the employee",
-            },
-          ])
-          .then((answer) => {
-            const role_ID_update = answer.role.split(" ");
-            const employee_ID_update = answer.employee.split(" ");
-  
-            employee__values_update.push(
-              role_ID_update[0],
-              employee_ID_update[0]
-            );
-  
-            connection.query(
-              insert_query_employee,
-              [employee__values_update[0], employee__values_update[1]],
-              (err, res) => {
-                if (err) {
-                  throw err;
-                }
+      const employee_array = res.map(
+        (row) => `${row.id} ${row.first_name} ${row.last_name}`
+      );
+
+      employee_array.push("null");
+      return inquirer
+        .prompt([
+          {
+            name: "employee",
+            type: "rawlist",
+            choices: employee_array,
+            message: "Which Employee would you like to update?",
+          },
+          {
+            name: "role",
+            type: "rawlist",
+            choices: role_array_update,
+            message: "Choose a role for the employee",
+          },
+        ])
+        .then((answer) => {
+          const role_ID_update = answer.role.split(" ");
+          const employee_ID_update = answer.employee.split(" ");
+
+          employee__values_update.push(
+            role_ID_update[0],
+            employee_ID_update[0]
+          );
+
+          connection.query(
+            insert_query_employee,
+            [employee__values_update[0], employee__values_update[1]],
+            (err, res) => {
+              if (err) {
+                throw err;
               }
-            );
-  
-            console.log("Employee position updated");
-            start();
-          });
-      });
+            }
+          );
+
+          console.log("Employee position updated");
+          view_employees();
+          start();
+        });
     });
-  }
+  });
+}
 
 // ----------------------------------------------------------------------------
 // ------------------------------VIEW BY MANAGER-------------------------------
@@ -585,43 +593,39 @@ function view_by_manager() {
     ON employee.manager_id = manager.id
   WHERE manager.id = ?;`;
 
-  const  manager_view = [];
+  const manager_view = [];
 
-    connection.query(query_manager_view, (err, res) => {
-      if (err) {
-        throw err;
-      }
-      const manager_array = res.map(
-        (row) => `${row.id} ${row.first_name} ${row.last_name}`
-      );
+  connection.query(query_manager_view, (err, res) => {
+    if (err) {
+      throw err;
+    }
+    const manager_array = res.map(
+      (row) => `${row.id} ${row.first_name} ${row.last_name}`
+    );
 
-      manager_array.push("null");
-      return inquirer
-        .prompt([
-          {
-            name: "manager_view",
-            type: "rawlist",
-            choices: manager_array,
-            message: "Which manager would you like to view?",
-          },
-        ])
-        .then((answer) => {
-          const manager_choice_ID = answer.manager_view.split(" ");
+    manager_array.push("null");
+    return inquirer
+      .prompt([
+        {
+          name: "manager_view",
+          type: "rawlist",
+          choices: manager_array,
+          message: "Which manager would you like to view?",
+        },
+      ])
+      .then((answer) => {
+        const manager_choice_ID = answer.manager_view.split(" ");
 
-          manager_view.push(manager_choice_ID[0]);
+        manager_view.push(manager_choice_ID[0]);
 
-          connection.query(
-            join_query,
-            [manager_view],
-            (err, res) => {
-              if (err) {
-                throw err;
-              }
-              console.table(res)
-            }
-          );
-          start();
+        connection.query(join_query, [manager_view], (err, res) => {
+          if (err) {
+            throw err;
+          }
+          console.table(res);
         });
+        start();
+      });
   });
 }
 
@@ -634,48 +638,49 @@ function update_manager() {
 
   const manager_view = [];
 
-    connection.query(query_employees, (err, res) => {
-      if (err) {
-        throw err;
-      }
-      const employee_array = res.map(
-        (row) => `${row.id} ${row.first_name} ${row.last_name}`
-      );
+  connection.query(query_employees, (err, res) => {
+    if (err) {
+      throw err;
+    }
+    const employee_array = res.map(
+      (row) => `${row.id} ${row.first_name} ${row.last_name}`
+    );
 
-      employee_array.push("null");
-      return inquirer
-        .prompt([
-          {
-            name: "employee",
-            type: "rawlist",
-            choices: employee_array,
-            message: "Which Employee's manager would you like to update?",
-          },
-          {
-            name: "new_manager",
-            type: "rawlist",
-            choices: employee_array,
-            message: "Who would you like to assign?",
-          },
-        ])
-        .then((answer) => {
-          const employee_choice_ID = answer.employee.split(" ");
-          const new_manager_ID = answer.new_manager.split(" ");
+    employee_array.push("null");
+    return inquirer
+      .prompt([
+        {
+          name: "employee",
+          type: "rawlist",
+          choices: employee_array,
+          message: "Which Employee's manager would you like to update?",
+        },
+        {
+          name: "new_manager",
+          type: "rawlist",
+          choices: employee_array,
+          message: "Who would you like to assign?",
+        },
+      ])
+      .then((answer) => {
+        const employee_choice_ID = answer.employee.split(" ");
+        const new_manager_ID = answer.new_manager.split(" ");
 
-          manager_view.push(employee_choice_ID[0], new_manager_ID[0]);
+        manager_view.push(employee_choice_ID[0], new_manager_ID[0]);
 
-          connection.query(
-            join_query,
-            [manager_view[1],manager_view[0]],
-            (err, res) => {
-              if (err) {
-                throw err;
-              }
+        connection.query(
+          join_query,
+          [manager_view[1], manager_view[0]],
+          (err, res) => {
+            if (err) {
+              throw err;
             }
-            );
-            console.log("Updated Manager!")
-          start();
-        });
+          }
+        );
+        console.log("Updated Manager!");
+        view_employees();
+        start();
+      });
   });
 }
 
@@ -686,42 +691,39 @@ function delete_employee() {
   const query_employees = `SELECT id, first_name, last_name FROM employee`;
   const delete_query = `DELETE FROM employee WHERE id =?`;
 
-  const delete_employee= [];
+  const delete_employee = [];
 
-    connection.query(query_employees, (err, res) => {
-      if (err) {
-        throw err;
-      }
-      const employee_array = res.map(
-        (row) => `${row.id} ${row.first_name} ${row.last_name}`
-      );
+  connection.query(query_employees, (err, res) => {
+    if (err) {
+      throw err;
+    }
+    const employee_array = res.map(
+      (row) => `${row.id} ${row.first_name} ${row.last_name}`
+    );
 
-      employee_array.push("null");
-      return inquirer
-        .prompt([
-          {
-            name: "employee",
-            type: "rawlist",
-            choices: employee_array,
-            message: "Which Employee do you want to delete?",
-          },
-        ])
-        .then((answer) => {
-          const employee_ID = answer.employee.split(" ");
-          delete_employee.push(employee_ID[0]);
+    employee_array.push("null");
+    return inquirer
+      .prompt([
+        {
+          name: "employee",
+          type: "rawlist",
+          choices: employee_array,
+          message: "Which Employee do you want to delete?",
+        },
+      ])
+      .then((answer) => {
+        const employee_ID = answer.employee.split(" ");
+        delete_employee.push(employee_ID[0]);
 
-          connection.query(
-            delete_query,
-            [delete_employee[0]],
-            (err, res) => {
-              if (err) {
-                throw err;
-              }
-            }
-          );
-          console.log("Employee deleted");
-          start();
+        connection.query(delete_query, [delete_employee[0]], (err, res) => {
+          if (err) {
+            throw err;
+          }
         });
+        console.log("Employee deleted");
+        view_employees();
+        start();
+      });
   });
 }
 
@@ -734,40 +736,35 @@ function delete_role() {
 
   const delete_role = [];
 
-    connection.query(query_roles, (err, res) => {
-      if (err) {
-        throw err;
-      }
-      const role_array = res.map(
-        (row) => `${row.id} ${row.title}`
-      );
+  connection.query(query_roles, (err, res) => {
+    if (err) {
+      throw err;
+    }
+    const role_array = res.map((row) => `${row.id} ${row.title}`);
 
-      role_array.push("null");
-      return inquirer
-        .prompt([
-          {
-            name: "role",
-            type: "rawlist",
-            choices: role_array,
-            message: "Which role do you want to delete?",
-          },
-        ])
-        .then((answer) => {
-          const role_ID = answer.role.split(" ");
-          delete_role.push(role_ID[0]);
+    role_array.push("null");
+    return inquirer
+      .prompt([
+        {
+          name: "role",
+          type: "rawlist",
+          choices: role_array,
+          message: "Which role do you want to delete?",
+        },
+      ])
+      .then((answer) => {
+        const role_ID = answer.role.split(" ");
+        delete_role.push(role_ID[0]);
 
-          connection.query(
-            delete_query,
-            [delete_role[0]],
-            (err, res) => {
-              if (err) {
-                throw err;
-              }
-            }
-          );
-          console.log("Role deleted");
-          start();
+        connection.query(delete_query, [delete_role[0]], (err, res) => {
+          if (err) {
+            throw err;
+          }
         });
+        console.log("Role deleted");
+        view_employees();
+        start();
+      });
   });
 }
 
@@ -780,39 +777,34 @@ function delete_department() {
 
   const delete_department = [];
 
-    connection.query(query_roles, (err, res) => {
-      if (err) {
-        throw err;
-      }
-      const department_array = res.map(
-        (row) => `${row.id} ${row.name}`
-      );
+  connection.query(query_roles, (err, res) => {
+    if (err) {
+      throw err;
+    }
+    const department_array = res.map((row) => `${row.id} ${row.name}`);
 
-      department_array.push("null");
-      return inquirer
-        .prompt([
-          {
-            name: "department",
-            type: "rawlist",
-            choices: department_array,
-            message: "Which department do you want to delete?",
-          },
-        ])
-        .then((answer) => {
-          const department_ID = answer.department.split(" ");
-          delete_department.push(department_ID[0]);
+    department_array.push("null");
+    return inquirer
+      .prompt([
+        {
+          name: "department",
+          type: "rawlist",
+          choices: department_array,
+          message: "Which department do you want to delete?",
+        },
+      ])
+      .then((answer) => {
+        const department_ID = answer.department.split(" ");
+        delete_department.push(department_ID[0]);
 
-          connection.query(
-            delete_query,
-            [delete_department[0]],
-            (err, res) => {
-              if (err) {
-                throw err;
-              }
-            }
-          );
-          console.log("Department deleted");
-          start();
+        connection.query(delete_query, [delete_department[0]], (err, res) => {
+          if (err) {
+            throw err;
+          }
         });
+        console.log("Department deleted");
+        view_employees();
+        start();
+      });
   });
 }
